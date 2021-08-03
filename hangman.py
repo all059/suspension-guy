@@ -14,6 +14,14 @@ import string
 
 WORDLIST_FILENAME = "words.txt"
 
+## Make a class next time
+
+"""
+class Hangman: 
+
+//shhit here
+
+"""
 
 def load_words():
     """
@@ -61,10 +69,11 @@ def is_word_guessed(secret_word, letters_guessed):
       False otherwise
     '''
     # FILL IN YOUR CODE HERE AND DELETE "pass"
-    li = letters_guessed
-    lis = list(secret_word)
-    for letter in lis:
-      if letter not in li:
+    ## Better variable names, learn what dictionaries are.
+    letters_guessed_so_far = letters_guessed
+    secret_word_letters = list(secret_word)
+    for letter in secret_word_letters:
+      if letter not in letters_guessed_so_far:
         return False
     return True
 
@@ -78,21 +87,31 @@ def get_guessed_word(secret_word, letters_guessed):
       which letters in secret_word have been guessed so far.
     '''
     # FILL IN YOUR CODE HERE AND DELETE "pass"
-    li = letters_guessed
-    lis = list(secret_word)
-    outword = list("_" * len(lis))
+    letters_guessed_so_far = letters_guessed
+    secret_word_letters = list(secret_word)
+    number_of_dashes = len(lis)
+    outword = list("_" * number_of_dashes)
     resultant = ""
-    for letter in li:
-      for index in range(len(lis)):
-        if letter == lis[index]:
-          outword[index] = letter
-    for ele in outword:
-      resultant += ele
-      resultant += " "
+
+    ## get_guessed_word("cat", "abc") ->  _ a _
+    # O(n * m)
+    # for letter in letters_guessed_so_far:
+    #   for index in range(len(secret_word_letters)):
+    #     if letter == secret_word_letters[index]:
+    #       outword[index] = letter
+
+    # O(n)
+    for idx in range(len(secret_word_letters)):
+        if secret_word_letters[idx] in letters_guessed_so_far:
+            outword[idx] = letter
+
+    " ".join(outword)
+
+    # for ele in outword:
+    #   resultant += ele
+    #   resultant += " "
+
     return resultant
-
-
-
 
 def get_available_letters(letters_guessed):
     '''
@@ -146,12 +165,24 @@ def hangman(secret_word):
     vowels = "aeiou"
     print(f"Welcome to hangman, your word has: {len(secret_word)} letters and you will have {guesses} guesses.")
     print(get_guessed_word(secret_word, guesslist))
-    while guesses > 0:
-      if guesses > 1:
-        print(f"You have {guesses} guesses left.")
-      else:
-        print("You have 1 guess left.")
+
+    ## Extract conditions to something readable
+    def isGameOver():
+        return guesses > 0
+
+    def printNumberOfGuesses():
+        if guesses > 1:
+            print(f"You have {guesses} guesses left.")
+        else:
+            print("You have 1 guess left.")
+
+    while not isGameOver():
+
+      printNumberOfGuesses()
+
       takein = input("Type your guess as a letter: ").lower()
+
+      ## Extract to a function 186 - 201
       check = takein.islower() and takein not in guesslist and len(takein) == 1
       while check == False:
         if warnings >= 0:
@@ -168,11 +199,26 @@ def hangman(secret_word):
             break
         takein = input("Type your guess as a letter: ")
         check = takein.islower() and takein not in guesslist and len(takein) == 1
+
+      ## need to double break, be
+      if check == False:
+          break
       if guesses == 0:
         break
+
       guesslist.append(takein)
       if takein in secret_word:
         print(f"The letter {takein} is in the word.")
+
+      ## vowels, consanant ({1, 0} {0})
+
+      """
+      if takein not in secret_word and takein not in vowels:
+        // do shit
+      else:
+        // do shit
+      """
+
       if takein not in secret_word and takein not in vowels:
         print(f"The letter {takein} is not in the word. You lose 1 guess for the wrong consonant.")
         guesses -= 1
@@ -182,11 +228,11 @@ def hangman(secret_word):
       print(f"Word: {get_guessed_word(secret_word, guesslist)}")
       print(f"Unused letters: {get_available_letters(guesslist)}.")
       print("\n ----------------------------------------------- \n")
-      if is_word_guessed(secret_word, guesslist) == True:
+      if is_word_guessed(secret_word, guesslist):
         print(f"Congratulations! You have guessed the word: {secret_word}!")
         print(f"Your score is {guesses * len(secret_word)}.")
         guesses = 0
-    if is_word_guessed(secret_word, guesslist) == False:
+    if not is_word_guessed(secret_word, guesslist):
       print(f"You did not guess the word: {secret_word}, before Bob hung himself.")
 
 
@@ -213,7 +259,7 @@ def match_with_gaps(my_word, other_word):
     matches = 0
     if len(my_word) != len(other_word):
       return False
-    for position in range(0,len(my_word)):
+    for position in range(0, len(my_word)):
       if my_word[position] == other_word[position] or my_word[position] == '_':
         matches += 1
     if matches == len(my_word):
